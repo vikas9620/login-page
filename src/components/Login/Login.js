@@ -9,16 +9,19 @@ const emailReducer = (state, action) => {
     return { value: action.val, isValid: action.val.includes('@') };
   }
   if (action.type === "Input_Blur") {
+    console.log(state.value);
     return { value: state, isValid: state.value.includes('@') };
   }
   return { value: '', isValid: false };
 };
 const passwordReducer = (state, action) => {
   if (action.type === "User_Input") {
-    return { value: action.val, isValid: action.val.trim().length > 6 };
+    const value = typeof action.val === 'string' ? action.val : '';
+    return { value: action.val, isValid: value.trim().length > 6 };
   }
   if (action.type === "Input_Blur") {
-    return { value: state, isValid: state.value.trim().length > 6 };
+    const value = typeof state.value === 'string' ? state.value : '';
+    return { value: state, isValid: value.trim().length > 6 };
   }
   return { value: '', isValid: false };
 };
@@ -28,24 +31,27 @@ const Login = (props) => {
   //const [enteredPassword, setEnteredPassword] = useState("");
   //const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
-
-  /* useEffect(() => {
-   const identifier= setTimeout(() => {
-    console.log("check validate form");
-     setFormIsValid(
-      enteredEmail.includes("@") && enteredPassword.trim().length > 6
-    )},100)
-    return ()=> {console.log('clear')
-      clearTimeout(identifier)};
-  }, [enteredEmail, enteredPassword]); */
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
     value: '',
     isValid: null
   });
   const [passwordState, dispatchPassword] = useReducer(passwordReducer, {
-    value: "",
+    value: '',
     isValid: null
   });
+  const {isValid: emailIsValid} = emailState
+  const {isValid: passwordIsValid} = passwordState
+
+   useEffect(() => {
+   const identifier= setTimeout(() => {
+    console.log("check validate form");
+     setFormIsValid(
+      emailIsValid && passwordIsValid
+    )},500)
+    return ()=> {console.log('clear')
+      clearTimeout(identifier)};
+  }, [emailIsValid, passwordIsValid]); 
+  
 
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: "User_Input", val: event.target.value });
